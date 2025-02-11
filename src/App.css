@@ -152,3 +152,14 @@ input[type="number"] {
 .control-button:active {
     background-color: #1d4ed8;
 }
+
+.history-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.history-controls .control-button {
+    margin-top: 0;
+    flex: 1;
+}

@@ -1,14 +1,19 @@
 import { useAtomValue, useSetAtom } from "jotai";
 import { useForm } from "react-hook-form";
-import { cornersAtom, squareStateAtom } from "../../atoms/square";
+import {
+    cornersAtom,
+    historyUpdateAtom,
+    squareStateAtom,
+} from "../../atoms/square";
 import { ControlForm } from "../../types/square";
 import { getCornerPosition } from "../../helpers/position";
 
 export const ControllerSection = () => {
     const corners = useAtomValue(cornersAtom);
     const setSquareState = useSetAtom(squareStateAtom);
+    const updateHistory = useSetAtom(historyUpdateAtom);
 
-    const { register, handleSubmit } = useForm<ControlForm>({
+    const { register, handleSubmit, reset } = useForm<ControlForm>({
         defaultValues: {
             move: { x: 0, y: 0 },
             rotate: { angle: 0 },
@@ -17,12 +22,37 @@ export const ControllerSection = () => {
     });
 
     const onSubmit = (data: ControlForm) => {
-        setSquareState((prev) => ({
-            ...prev,
-            position: { x: data.move.x, y: data.move.y },
-            rotation: data.rotate.angle,
-            origin: { x: data.origin.x, y: data.origin.y },
-        }));
+        if (
+            data.move.x === 0 &&
+            data.move.y === 0 &&
+            data.rotate.angle === 0 &&
+            data.origin.x === 0 &&
+            data.origin.y === 0
+        ) {
+            return;
+        }
+
+        setSquareState((prev) => {
+            const newState = {
+                position: {
+                    x: prev.position.x + data.move.x,
+                    y: prev.position.y + data.move.y,
+                },
+                rotation: prev.rotation + data.rotate.angle,
+                origin: {
+                    x: prev.origin.x + data.origin.x,
+                    y: prev.origin.y + data.origin.y,
+                },
+            };
+
+            reset({
+                move: { x: 0, y: 0 },
+                rotate: { angle: 0 },
+                origin: { x: 0, y: 0 },
+            });
+
+            return newState;
+        });
     };
 
     return (
@@ -113,6 +143,22 @@ export const ControllerSection = () => {
                     적용
                 </button>
             </form>
+            <div className="history-controls">
+                <button
+                    type="button"
+                    className="control-button"
+                    onClick={() => updateHistory({ type: "UNDO" })}
+                >
+                    실행 취소
+                </button>
+                <button
+                    type="button"
+                    className="control-button"
+                    onClick={() => updateHistory({ type: "REDO" })}
+                >
+                    다시 실행
+                </button>
+            </div>
         </section>
     );
 };

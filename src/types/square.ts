@@ -22,3 +22,14 @@ export interface ControlForm {
         y: number;
     };
 }
+
+export interface HistoryState {
+    past: SquareState[];
+    present: SquareState;
+    future: SquareState[];
+}
+
+export type HistoryAction =
+    | { type: "PUSH"; newPresent: SquareState }
+    | { type: "UNDO" }
+    | { type: "REDO" };
