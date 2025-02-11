@@ -66,10 +66,9 @@ ol li {
 
 .container {
     margin: 2rem;
-    padding: 2rem;
-    background-color: white;
+    padding: 1rem;
+    background-color: var(--protopie-coral-10);
     border-radius: 1.5rem;
-    border: 2px solid #e5e7eb;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     box-sizing: content-box;
 }
@@ -162,6 +161,10 @@ ol li {
     align-items: center;
 }
 
+.input-row input {
+    flex: 1;
+}
+
 input[type="number"] {
     width: 100%;
     padding: 0.5rem;
@@ -211,4 +214,11 @@ input[type="number"] {
 .history-controls .control-button {
     margin-top: 0;
     flex: 1;
+}
+
+.reset-description {
+    margin: 0;
+    font-size: 0.875rem;
+    color: #6b7280;
+    text-align: center;
 }

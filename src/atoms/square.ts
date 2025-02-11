@@ -95,9 +95,29 @@ export const cornersAtom = atom((get) => {
 // 원점 기준 변환을 위한 파생 atom
 export const transformAtom = atom(
     null,
-    (get, set, action: { move?: Point; rotate?: number; origin?: Point }) => {
+    (
+        get,
+        set,
+        action: {
+            move?: Point;
+            rotate?: number;
+            origin?: Point;
+            reset?: boolean;
+        }
+    ) => {
         const history = get(historyAtom);
         const { square, origin } = history.present;
+
+        if (action.reset) {
+            set(historyUpdateAtom, {
+                type: "PUSH",
+                newPresent: {
+                    square: initialSquareState,
+                    origin: initialOriginState,
+                },
+            });
+            return;
+        }
 
         if (action.origin) {
             // origin 변경 시 history에 직접 업데이트
