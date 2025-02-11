@@ -3,7 +3,6 @@ import { useForm } from "react-hook-form";
 import {
     cornersAtom,
     historyUpdateAtom,
-    originAtom,
     transformAtom,
 } from "../../atoms/square";
 import { ControlForm } from "../../types/square";
@@ -12,7 +11,6 @@ import { getCornerPosition } from "../../helpers/position";
 export const ControllerSection = () => {
     const corners = useAtomValue(cornersAtom);
     const updateHistory = useSetAtom(historyUpdateAtom);
-    const setOrigin = useSetAtom(originAtom);
     const transform = useSetAtom(transformAtom);
 
     const { register, handleSubmit, reset } = useForm<ControlForm>({
@@ -36,10 +34,9 @@ export const ControllerSection = () => {
 
         // 원점 업데이트
         if (data.origin.x !== 0 || data.origin.y !== 0) {
-            setOrigin((prev) => ({
-                x: prev.x + data.origin.x,
-                y: prev.y + data.origin.y,
-            }));
+            transform({
+                origin: { x: data.origin.x, y: data.origin.y },
+            });
         }
 
         // 이동 변환

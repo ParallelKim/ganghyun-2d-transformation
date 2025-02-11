@@ -1,3 +1,4 @@
+import { SQUARE_SIZE } from "../constants";
 import { Point } from "../types/square";
 
 export const getCornerPosition = (point: Point, corners: Point[]) => {
@@ -30,4 +31,37 @@ export const getCornerPosition = (point: Point, corners: Point[]) => {
     }
 
     return positions.join(", ");
+};
+
+export const getCorners = (center: Point, rotation: number) => {
+    const angleRad = (rotation * Math.PI) / 180;
+    const cos = Math.cos(angleRad);
+    const sin = Math.sin(angleRad);
+    const halfSize = SQUARE_SIZE / 2;
+
+    // 중심점 기준으로 각 꼭지점의 상대 위치를 회전 변환
+    const corners: [Point, Point, Point, Point] = [
+        // left top: (-halfSize, halfSize)
+        {
+            x: center.x + (-halfSize * cos - halfSize * sin),
+            y: center.y + (-halfSize * sin + halfSize * cos),
+        },
+        // right top: (halfSize, halfSize)
+        {
+            x: center.x + (halfSize * cos - halfSize * sin),
+            y: center.y + (halfSize * sin + halfSize * cos),
+        },
+        // right bottom: (halfSize, -halfSize)
+        {
+            x: center.x + (halfSize * cos + halfSize * sin),
+            y: center.y + (halfSize * sin - halfSize * cos),
+        },
+        // left bottom: (-halfSize, -halfSize)
+        {
+            x: center.x + (-halfSize * cos + halfSize * sin),
+            y: center.y + (-halfSize * sin - halfSize * cos),
+        },
+    ];
+
+    return corners;
 };

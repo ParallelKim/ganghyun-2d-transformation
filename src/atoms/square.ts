@@ -5,19 +5,20 @@ import {
     HistoryState,
     HistoryAction,
 } from "../types/square";
+import { SQUARE_SIZE } from "../constants";
+import { getCorners } from "../helpers/position";
 
 // 원점 상태를 위한 atom
-export const originAtom = atom<Point>({ x: 0, y: 0 });
-
+const initialOriginState: Point = { x: 0, y: 0 };
 const initialSquareState: SquareState = {
-    location: { x: 0, y: 0 }, // 사각형의 중심점
+    center: { x: SQUARE_SIZE / 2, y: SQUARE_SIZE / 2 }, // 사각형의 중심점
     rotation: 0, // x축 기준 회전각 (도)
 };
 
 // 히스토리 관리를 위한 atom
 export const historyAtom = atom<HistoryState>({
     past: [],
-    present: initialSquareState,
+    present: { square: initialSquareState, origin: initialOriginState },
     future: [],
 });
 
@@ -66,60 +67,52 @@ export const historyUpdateAtom = atom(
     }
 );
 
-// 현재 상태를 반환하는 atom (기존 squareStateAtom 대체)
+// 현재 상태를 반환하는 atom
 export const squareStateAtom = atom(
     (get) => get(historyAtom).present,
     (get, set, newState: (prev: SquareState) => SquareState) => {
         set(historyUpdateAtom, {
             type: "PUSH",
-            newPresent: newState(get(historyAtom).present),
+            newPresent: {
+                square: newState(get(historyAtom).present.square),
+                origin: get(historyAtom).present.origin,
+            },
         });
     }
 );
 
 // 파생된 상태: 사각형의 모서리 좌표 (원점 기준 회전 적용)
 export const cornersAtom = atom((get) => {
-    const { location, rotation } = get(squareStateAtom);
-    const origin = get(originAtom);
-    const halfSize = 100 / 2;
+    const {
+        square: { center, rotation },
+    } = get(squareStateAtom);
 
-    // 회전하기 전의 모서리 좌표 (중심점 기준)
-    const corners: Point[] = [
-        { x: -halfSize, y: halfSize }, // left top
-        { x: halfSize, y: halfSize }, // right top
-        { x: halfSize, y: -halfSize }, // right bottom
-        { x: -halfSize, y: -halfSize }, // left bottom
-    ];
+    const corners = getCorners(center, rotation);
 
-    // 회전 변환 적용 (원점 기준)
-    return corners.map((corner) => {
-        // 1. 중심점 기준 좌표를 절대 좌표로 변환
-        const absX = corner.x + location.x;
-        const absY = corner.y + location.y;
-
-        // 2. 원점 기준 회전
-        const deltaX = absX - origin.x;
-        const deltaY = absY - origin.y;
-        const angleRad = (rotation * Math.PI) / 180;
-
-        const rotatedX =
-            deltaX * Math.cos(angleRad) -
-            deltaY * Math.sin(angleRad) +
-            origin.x;
-        const rotatedY =
-            deltaX * Math.sin(angleRad) +
-            deltaY * Math.cos(angleRad) +
-            origin.y;
-
-        return { x: rotatedX, y: rotatedY };
-    });
+    return corners;
 });
 
 // 원점 기준 변환을 위한 파생 atom
 export const transformAtom = atom(
     null,
-    (get, set, action: { move?: Point; rotate?: number }) => {
-        const origin = get(originAtom);
+    (get, set, action: { move?: Point; rotate?: number; origin?: Point }) => {
+        const history = get(historyAtom);
+        const { square, origin } = history.present;
+
+        if (action.origin) {
+            // origin 변경 시 history에 직접 업데이트
+            set(historyUpdateAtom, {
+                type: "PUSH",
+                newPresent: {
+                    square,
+                    origin: {
+                        x: origin.x + action.origin.x,
+                        y: origin.y + action.origin.y,
+                    },
+                },
+            });
+            return;
+        }
 
         set(squareStateAtom, (prev) => {
             if (action.move) {
@@ -134,9 +127,9 @@ export const transformAtom = atom(
                 };
                 return {
                     ...prev,
-                    location: {
-                        x: prev.location.x + transformedMove.x,
-                        y: prev.location.y + transformedMove.y,
+                    center: {
+                        x: prev.center.x + transformedMove.x,
+                        y: prev.center.y + transformedMove.y,
                     },
                 };
             }
@@ -145,15 +138,15 @@ export const transformAtom = atom(
                 const deltaRad = (action.rotate * Math.PI) / 180;
 
                 // 원점으로부터의 상대 벡터
-                const dx = prev.location.x - origin.x;
-                const dy = prev.location.y - origin.y;
+                const dx = prev.center.x - origin.x;
+                const dy = prev.center.y - origin.y;
 
                 // 원점 기준 순수 회전 변환
                 const newX = dx * Math.cos(deltaRad) - dy * Math.sin(deltaRad);
                 const newY = dx * Math.sin(deltaRad) + dy * Math.cos(deltaRad);
 
                 return {
-                    location: {
+                    center: {
                         x: newX + origin.x,
                         y: newY + origin.y,
                     },

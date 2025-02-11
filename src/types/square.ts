@@ -4,7 +4,7 @@ export interface Point {
 }
 
 export interface SquareState {
-    location: Point;
+    center: Point;
     rotation: number;
 }
 
@@ -22,13 +22,18 @@ export interface ControlForm {
     };
 }
 
+interface HistoryItem {
+    square: SquareState;
+    origin: Point;
+}
+
 export interface HistoryState {
-    past: SquareState[];
-    present: SquareState;
-    future: SquareState[];
+    past: HistoryItem[];
+    present: HistoryItem;
+    future: HistoryItem[];
 }
 
 export type HistoryAction =
-    | { type: "PUSH"; newPresent: SquareState }
+    | { type: "PUSH"; newPresent: HistoryItem }
     | { type: "UNDO" }
     | { type: "REDO" };
