@@ -1,7 +1,8 @@
 import { useAtomValue } from "jotai";
 import { useEffect, useRef } from "react";
-import { squareStateAtom } from "../../atoms/square";
+import { squareStateAtom } from "../../atoms/transform";
 import { GRID_SIZE, HALF_SIZE, SQUARE_SIZE } from "../../constants";
+import { CANVAS_STYLE } from "../../constants";
 
 type CustomCanvas = HTMLCanvasElement & {
     drawSquareAndOrigin?: () => void;
@@ -42,11 +43,12 @@ export const DrawingSection = () => {
             );
         };
 
+        const gridCount = HALF_SIZE / GRID_SIZE;
+
         // 그리드 그리기 함수
         const drawGrid = () => {
-            ctx.strokeStyle = "rgba(0,0,0,0.1)";
+            ctx.strokeStyle = CANVAS_STYLE.colors.GRID;
             ctx.beginPath();
-            const gridCount = HALF_SIZE / GRID_SIZE;
             for (let i = -gridCount; i <= gridCount; i++) {
                 ctx.moveTo(i * GRID_SIZE, -HALF_SIZE);
                 ctx.lineTo(i * GRID_SIZE, HALF_SIZE);
@@ -56,9 +58,36 @@ export const DrawingSection = () => {
             ctx.stroke();
         };
 
+        // 그리드 숫자 그리기 함수
+        const drawTickValue = () => {
+            ctx.save();
+            ctx.scale(1, -1);
+            ctx.fillStyle = CANVAS_STYLE.colors.AXES;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            ctx.font = CANVAS_STYLE.text.FONT;
+
+            for (let i = -gridCount + 1; i < gridCount; i++) {
+                if (i % 5 === 0 && i !== 0) {
+                    const value = i * GRID_SIZE;
+                    ctx.fillText(
+                        value.toString(),
+                        value,
+                        CANVAS_STYLE.sizes.TICK_OFFSET
+                    );
+                    ctx.fillText(
+                        (-value).toString(),
+                        -CANVAS_STYLE.sizes.TICK_OFFSET,
+                        value
+                    );
+                }
+            }
+            ctx.restore();
+        };
+
         // 축 그리기 함수
         const drawAxes = () => {
-            ctx.strokeStyle = "black";
+            ctx.strokeStyle = CANVAS_STYLE.colors.AXES;
             ctx.beginPath();
             ctx.moveTo(-HALF_SIZE, 0);
             ctx.lineTo(HALF_SIZE, 0);
@@ -72,8 +101,8 @@ export const DrawingSection = () => {
             ctx.save();
             ctx.translate(center.x, center.y);
             ctx.rotate((rotation * Math.PI) / 180);
-            ctx.fillStyle = "#e5e7eb";
-            ctx.strokeStyle = "black";
+            ctx.fillStyle = CANVAS_STYLE.colors.SQUARE.FILL;
+            ctx.strokeStyle = CANVAS_STYLE.colors.SQUARE.STROKE;
             ctx.beginPath();
 
             // 중심점 기준으로 사각형 그리기
@@ -85,9 +114,15 @@ export const DrawingSection = () => {
             ctx.restore();
 
             // 원점 표시
-            ctx.fillStyle = "red";
+            ctx.fillStyle = CANVAS_STYLE.colors.ORIGIN;
             ctx.beginPath();
-            ctx.arc(origin.x, origin.y, 3, 0, Math.PI * 2);
+            ctx.arc(
+                origin.x,
+                origin.y,
+                CANVAS_STYLE.sizes.ORIGIN_RADIUS,
+                0,
+                Math.PI * 2
+            );
             ctx.fill();
         };
 
@@ -102,6 +137,7 @@ export const DrawingSection = () => {
             drawGrid();
             drawAxes();
             drawSquareAndOrigin();
+            drawTickValue();
         };
         handleResize();
         window.addEventListener("resize", handleResize);
