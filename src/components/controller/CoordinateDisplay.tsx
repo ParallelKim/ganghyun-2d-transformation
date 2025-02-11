@@ -1,5 +1,5 @@
 import { useAtomValue } from "jotai";
-import { cornersAtom } from "../../atoms/square";
+import { cornersAtom } from "../../atoms/transform";
 import { getCornerPosition } from "../../helpers/position";
 
 export const CoordinateDisplay = () => {

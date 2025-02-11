@@ -109,12 +109,13 @@ export const transformAtom = atom(
         const { square, origin } = history.present;
 
         if (action.reset) {
-            set(historyUpdateAtom, {
-                type: "PUSH",
-                newPresent: {
+            set(historyAtom, {
+                past: [],
+                present: {
                     square: initialSquareState,
                     origin: initialOriginState,
                 },
+                future: [],
             });
             return;
         }
@@ -136,20 +137,11 @@ export const transformAtom = atom(
 
         set(squareStateAtom, (prev) => {
             if (action.move) {
-                const angleRad = (prev.rotation * Math.PI) / 180;
-                const transformedMove = {
-                    x:
-                        action.move.x * Math.cos(angleRad) -
-                        action.move.y * Math.sin(angleRad),
-                    y:
-                        action.move.x * Math.sin(angleRad) +
-                        action.move.y * Math.cos(angleRad),
-                };
                 return {
                     ...prev,
                     center: {
-                        x: prev.center.x + transformedMove.x,
-                        y: prev.center.y + transformedMove.y,
+                        x: prev.center.x + action.move.x,
+                        y: prev.center.y + action.move.y,
                     },
                 };
             }

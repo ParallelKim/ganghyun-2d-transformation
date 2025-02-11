@@ -7,7 +7,12 @@ interface Props {
 
 export const NumberInput = ({ label, value, onChange, error }: Props) => {
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const numValue = parseInt(e.target.value);
+        if (e.target.value === "" || e.target.value === "-") {
+            onChange(0);
+            return;
+        }
+
+        const numValue = Number(e.target.value);
         onChange(numValue);
     };
 
@@ -16,8 +21,10 @@ export const NumberInput = ({ label, value, onChange, error }: Props) => {
             <label>{label}:</label>
             <input
                 type="number"
-                value={value}
+                value={value || ""}
                 onChange={handleChange}
+                min={-Infinity}
+                step="1"
             />
             {error && <span className="error-message">{error}</span>}
         </div>

@@ -1,5 +1,5 @@
 import { useSetAtom } from "jotai";
-import { historyUpdateAtom } from "../../atoms/square";
+import { historyUpdateAtom } from "../../atoms/transform";
 
 export const HistoryControl = () => {
     const updateHistory = useSetAtom(historyUpdateAtom);

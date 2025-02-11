@@ -1,5 +1,5 @@
 import { useSetAtom } from "jotai";
-import { transformAtom } from "../../atoms/square";
+import { transformAtom } from "../../atoms/transform";
 
 export const ResetControl = () => {
     const transform = useSetAtom(transformAtom);
