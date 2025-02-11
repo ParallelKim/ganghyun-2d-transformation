@@ -4,9 +4,8 @@ export interface Point {
 }
 
 export interface SquareState {
-    position: Point;
+    location: Point;
     rotation: number;
-    origin: Point;
 }
 
 export interface ControlForm {

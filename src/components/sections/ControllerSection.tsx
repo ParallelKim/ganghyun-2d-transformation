@@ -3,15 +3,17 @@ import { useForm } from "react-hook-form";
 import {
     cornersAtom,
     historyUpdateAtom,
-    squareStateAtom,
+    originAtom,
+    transformAtom,
 } from "../../atoms/square";
 import { ControlForm } from "../../types/square";
 import { getCornerPosition } from "../../helpers/position";
 
 export const ControllerSection = () => {
     const corners = useAtomValue(cornersAtom);
-    const setSquareState = useSetAtom(squareStateAtom);
     const updateHistory = useSetAtom(historyUpdateAtom);
+    const setOrigin = useSetAtom(originAtom);
+    const transform = useSetAtom(transformAtom);
 
     const { register, handleSubmit, reset } = useForm<ControlForm>({
         defaultValues: {
@@ -32,26 +34,32 @@ export const ControllerSection = () => {
             return;
         }
 
-        setSquareState((prev) => {
-            const newState = {
-                position: {
-                    x: prev.position.x + data.move.x,
-                    y: prev.position.y + data.move.y,
-                },
-                rotation: prev.rotation + data.rotate.angle,
-                origin: {
-                    x: prev.origin.x + data.origin.x,
-                    y: prev.origin.y + data.origin.y,
-                },
-            };
+        // 원점 업데이트
+        if (data.origin.x !== 0 || data.origin.y !== 0) {
+            setOrigin((prev) => ({
+                x: prev.x + data.origin.x,
+                y: prev.y + data.origin.y,
+            }));
+        }
 
-            reset({
-                move: { x: 0, y: 0 },
-                rotate: { angle: 0 },
-                origin: { x: 0, y: 0 },
+        // 이동 변환
+        if (data.move.x !== 0 || data.move.y !== 0) {
+            transform({
+                move: { x: data.move.x, y: data.move.y },
             });
+        }
 
-            return newState;
+        // 회전 변환
+        if (data.rotate.angle !== 0) {
+            transform({
+                rotate: data.rotate.angle,
+            });
+        }
+
+        reset({
+            move: { x: 0, y: 0 },
+            rotate: { angle: 0 },
+            origin: { x: 0, y: 0 },
         });
     };
 
@@ -135,7 +143,6 @@ export const ControllerSection = () => {
                         </div>
                     </div>
                 </fieldset>
-
                 <button
                     type="submit"
                     className="control-button"

@@ -1,6 +1,6 @@
 import { useAtomValue } from "jotai";
 import { useEffect, useRef } from "react";
-import { squareStateAtom } from "../../atoms/square";
+import { squareStateAtom, originAtom } from "../../atoms/square";
 
 const HALF_SIZE = 200;
 const GRID_SIZE = 10;
@@ -8,7 +8,8 @@ const SQUARE_SIZE = 100;
 
 export const DrawingSection = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
-    const state = useAtomValue(squareStateAtom);
+    const { location, rotation } = useAtomValue(squareStateAtom);
+    const origin = useAtomValue(originAtom);
 
     useEffect(() => {
         const draw = () => {
@@ -63,13 +64,9 @@ export const DrawingSection = () => {
             ctx.stroke();
 
             // 사각형 그리기
-            const { position, rotation, origin } = state;
             ctx.save();
-            ctx.translate(position.x, position.y);
-            ctx.translate(origin.x, origin.y);
+            ctx.translate(location.x, location.y);
             ctx.rotate((rotation * Math.PI) / 180);
-            ctx.translate(-origin.x, -origin.y);
-
             ctx.fillStyle = "#e5e7eb";
             ctx.strokeStyle = "black";
             ctx.beginPath();
@@ -78,21 +75,15 @@ export const DrawingSection = () => {
             ctx.stroke();
             ctx.restore();
 
-            // 원점 그리기
+            // 원점 표시
             ctx.fillStyle = "red";
             ctx.beginPath();
-            ctx.arc(
-                origin.x + position.x,
-                origin.y + position.y,
-                3,
-                0,
-                Math.PI * 2
-            );
+            ctx.arc(origin.x, origin.y, 3, 0, Math.PI * 2);
             ctx.fill();
         };
 
         draw();
-    }, [state]);
+    }, [location, rotation, origin]);
 
     return (
         <section className="display">
