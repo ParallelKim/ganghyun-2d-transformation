@@ -13,7 +13,7 @@ export const ControllerSection = () => {
     const updateHistory = useSetAtom(historyUpdateAtom);
     const transform = useSetAtom(transformAtom);
 
-    const { register, handleSubmit, reset } = useForm<ControlForm>({
+    const { register, getValues, setValue } = useForm<ControlForm>({
         defaultValues: {
             move: { x: 0, y: 0 },
             rotate: { angle: 0 },
@@ -21,43 +21,42 @@ export const ControllerSection = () => {
         },
     });
 
-    const onSubmit = (data: ControlForm) => {
-        if (
-            data.move.x === 0 &&
-            data.move.y === 0 &&
-            data.rotate.angle === 0 &&
-            data.origin.x === 0 &&
-            data.origin.y === 0
-        ) {
-            return;
+    const resetField = (field: keyof ControlForm) => {
+        switch (field) {
+            case "move":
+                setValue("move", { x: 0, y: 0 });
+                break;
+            case "rotate":
+                setValue("rotate", { angle: 0 });
+                break;
+            case "origin":
+                setValue("origin", { x: 0, y: 0 });
+                break;
         }
+    };
 
-        // 원점 업데이트
-        if (data.origin.x !== 0 || data.origin.y !== 0) {
-            transform({
-                origin: { x: data.origin.x, y: data.origin.y },
-            });
-        }
+    const handleMove = () => {
+        const { move } = getValues();
+        if (move.x === 0 && move.y === 0) return;
 
-        // 이동 변환
-        if (data.move.x !== 0 || data.move.y !== 0) {
-            transform({
-                move: { x: data.move.x, y: data.move.y },
-            });
-        }
+        transform({ move: { x: move.x, y: move.y } });
+        resetField("move");
+    };
 
-        // 회전 변환
-        if (data.rotate.angle !== 0) {
-            transform({
-                rotate: data.rotate.angle,
-            });
-        }
+    const handleRotate = () => {
+        const { rotate } = getValues();
+        if (rotate.angle === 0) return;
 
-        reset({
-            move: { x: 0, y: 0 },
-            rotate: { angle: 0 },
-            origin: { x: 0, y: 0 },
-        });
+        transform({ rotate: rotate.angle });
+        resetField("rotate");
+    };
+
+    const handleOrigin = () => {
+        const { origin } = getValues();
+        if (origin.x === 0 && origin.y === 0) return;
+
+        transform({ origin: { x: origin.x, y: origin.y } });
+        resetField("origin");
     };
 
     return (
@@ -78,9 +77,18 @@ export const ControllerSection = () => {
                     </ol>
                 </div>
             </div>
-            <form onSubmit={handleSubmit(onSubmit)}>
+            <div>
                 <fieldset className="control-group">
-                    <h2>이동</h2>
+                    <div className="control-header">
+                        <h2>이동</h2>
+                        <button
+                            type="button"
+                            className="control-button"
+                            onClick={handleMove}
+                        >
+                            적용
+                        </button>
+                    </div>
                     <div className="control-box">
                         <div className="input-row">
                             <label>x:</label>
@@ -103,7 +111,16 @@ export const ControllerSection = () => {
                     </div>
                 </fieldset>
                 <fieldset className="control-group">
-                    <h2>회전</h2>
+                    <div className="control-header">
+                        <h2>회전</h2>
+                        <button
+                            type="button"
+                            className="control-button"
+                            onClick={handleRotate}
+                        >
+                            적용
+                        </button>
+                    </div>
                     <div className="control-box">
                         <div className="input-row">
                             <label>각도:</label>
@@ -118,7 +135,16 @@ export const ControllerSection = () => {
                     </div>
                 </fieldset>
                 <fieldset className="control-group">
-                    <h2>원점 변경</h2>
+                    <div className="control-header">
+                        <h2>원점 변경</h2>
+                        <button
+                            type="button"
+                            className="control-button"
+                            onClick={handleOrigin}
+                        >
+                            적용
+                        </button>
+                    </div>
                     <div className="control-box">
                         <div className="input-row">
                             <label>x:</label>
@@ -140,13 +166,7 @@ export const ControllerSection = () => {
                         </div>
                     </div>
                 </fieldset>
-                <button
-                    type="submit"
-                    className="control-button"
-                >
-                    적용
-                </button>
-            </form>
+            </div>
             <div className="history-controls">
                 <button
                     type="button"

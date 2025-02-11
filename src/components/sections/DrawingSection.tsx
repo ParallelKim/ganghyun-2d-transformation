@@ -24,13 +24,10 @@ export const DrawingSection = () => {
 
         // DPR 및 캔버스 크기 설정 함수
         const setupCanvas = () => {
-            const dpr = window.devicePixelRatio || 1;
             const rect = canvas.getBoundingClientRect();
 
-            canvas.width = rect.width * dpr;
-            canvas.height = rect.height * dpr;
-
-            ctx.scale(dpr, dpr);
+            canvas.width = rect.width;
+            canvas.height = rect.height;
 
             const size = Math.min(rect.width, rect.height);
             const scale = size / (2 * HALF_SIZE);

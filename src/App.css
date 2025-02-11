@@ -1,3 +1,39 @@
+:root {
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+    font-weight: 400;
+
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+
+    --protopie-gray-100: #23262e;
+
+    --protopie-coral-10: #fcd1ca;
+    --protopie-coral-30: #ff6661;
+}
+
+html {
+    font-size: clamp(16px, calc(16px + 4 * ((100vw - 320px) / 1600)), 20px);
+}
+
+body {
+    margin: 0;
+    display: flex;
+    place-items: center;
+}
+
+ol {
+    padding-left: 1rem;
+    margin: 0;
+}
+
+ol li {
+    padding: 0;
+    margin: 0;
+}
+
 #root {
     margin: 0;
     padding: 0;
@@ -8,19 +44,13 @@
     height: 100%;
 }
 
-.card {
-    padding: 2em;
-}
-
-.read-the-docs {
-    color: #888;
-}
-
 .app {
     width: 100dvw;
     height: 100dvh;
-    background-color: #fce7f3;
+    background-color: var(--protopie-gray-100);
     overflow: hidden;
+    display: flex;
+    justify-content: center;
 }
 
 .container {
@@ -30,23 +60,28 @@
     border-radius: 1.5rem;
     border: 2px solid #e5e7eb;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    box-sizing: content-box;
 }
 
 .layout {
     display: flex;
+    width: 100%;
+    height: 100%;
     gap: 1.5rem;
 }
 
 .display {
-    width: 100%;
     aspect-ratio: 1;
-    background-color: #fce7f3;
+    background-color: var(--protopie-coral-10);
     border-radius: 1rem;
     padding: 1rem;
 }
 
 .controller {
-    min-width: 280px;
+    min-width: 18rem;
+    flex: 1;
+    box-sizing: border-box;
+    overflow-y: auto;
     background-color: white;
     border: 1px solid #e5e7eb;
     border-radius: 1rem;
@@ -54,6 +89,12 @@
     display: flex;
     flex-direction: column;
     gap: 1.5rem;
+}
+
+.control-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 .control-group {
@@ -119,7 +160,7 @@ input[type="number"] {
 
 input[type="number"]:focus {
     outline: none;
-    border-color: #3b82f6;
+    border-color: var(--protopie-coral-30);
 }
 
 /* 숫자 입력 화살표 제거 */
@@ -134,10 +175,8 @@ input[type="number"] {
 }
 
 .control-button {
-    width: 100%;
-    margin-top: 0.5rem;
     padding: 0.5rem;
-    background-color: #3b82f6;
+    background-color: var(--protopie-coral-30);
     color: white;
     border: none;
     border-radius: 0.5rem;
@@ -146,11 +185,11 @@ input[type="number"] {
 }
 
 .control-button:hover {
-    background-color: #2563eb;
+    background-color: var(--protopie-coral-30);
 }
 
 .control-button:active {
-    background-color: #1d4ed8;
+    background-color: var(--protopie-coral-30);
 }
 
 .history-controls {
